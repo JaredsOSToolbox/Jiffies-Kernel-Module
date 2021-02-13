@@ -2,11 +2,29 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/proc_fs.h>
-#include <asm/uaccess.h>
-#include <linux/procs.h>
+#include <linux/uaccess.h>
+#include <linux/sched.h>
+#include <linux/slab.h>
+
+/*int len, temp;*/
+/*char *message;*/
+/*ssize_t size;*/
 
 /*
- * Sourced from here: https://blog.sourcerer.io/writing-a-simple-linux-kernel-module-d9dc3762c234
+ * ^ instead of <asm/uaccess.h>
+ * https://lkml.org/lkml/2017/9/30/189
+ * There seems to be a kernel bug here
+*/
+
+/*
+ * Since I was having issues with the proc file system, I decided to use this blog post for help
+ * https://tuxthink.blogspot.com/2019/10/creating-proc-read-write-function-in.html
+ * https://stackoverflow.com/questions/50868218/alternative-to-create-proc-entry-and-read-proc-in-linux-kernel-code
+ *
+ * There also does not seem to be *any* function calls to proc_read in the linux kernel so I am confused here
+ * https://elixir.bootlin.com/linux/v4.15/A/ident/proc_read
+ * Well I am going to leave these comments to exhibit my inability to read DDG/Google
+ * Thanks for providing a function definition
 */
 
 MODULE_LICENSE("GPL");
@@ -18,11 +36,37 @@ MODULE_VERSION("0.01");
 #define BUFFER_SIZE 128
 #define PROC_NAME "hello"
 
-ssize_t proc_read(struct file *file, char __user *usr_buf, size_t count, loff_t *pos);
+ssize_t proc_read(struct file *file, char __user *usr_buf, size_t count, loff_t *pos) {
+    /*if(count >  temp){ count = temp; }*/
+    /*temp = (temp - count);*/
+    /*simple_read_from_buffer(usr_buf, count, pos, message, size);*/
+    /*if(count == 0){ temp = len; }*/
+    /*return count;*/
+
+    int rv = 0;
+    char buffer[BUFFER_SIZE];
+    static int completed = 0;
+    if(completed){
+        completed = 0;
+        return 0;
+    }
+    completed = 1;
+    rv = sprintf(buffer, "vim is better than emacs\n");
+    copy_to_user(usr_buf, buffer, rv);
+    return rv;
+}
+
+/*ssize_t write_proc(struct file *file, const char *buffer, size_t count, loff_t *pos) {*/
+    /*simple_write_to_buffer(message, sizeof(message), pos, buffer, count);*/
+    /*len = count;*/
+    /*temp = len;*/
+    /*return count;*/
+/*}*/
 
 static struct file_operations proc_ops = {
-    .owner = "proc module",
+    .owner = THIS_MODULE,
     .read = proc_read,
+    /*write: write_proc*/
 };
 
 
