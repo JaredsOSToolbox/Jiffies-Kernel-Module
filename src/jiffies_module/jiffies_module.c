@@ -7,10 +7,6 @@
 #include <linux/slab.h>
 #include <linux/jiffies.h>
 
-/*int len, temp;*/
-/*char *message;*/
-/*ssize_t size;*/
-
 /*
  * ^ instead of <asm/uaccess.h>
  * https://lkml.org/lkml/2017/9/30/189
