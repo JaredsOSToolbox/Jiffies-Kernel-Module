@@ -12,6 +12,7 @@ test:
 	sudo insmod jiffies_module.ko
 	grep "jiffies_module" <<< `lsmod` >/dev/null && echo "inserted into kernel" || echo "not properly inserted into kernel space"
 	[[ -e /proc/jiffies ]] && cat /proc/jiffies || echo "nope"
+	sleep 2
 	sudo rmmod jiffies_module
 	[[ ! -e /proc/jiffies ]] && echo "successfully removed jiffies proc from kernel space" || echo "failed to remove jiffies proc file"
 	dmesg

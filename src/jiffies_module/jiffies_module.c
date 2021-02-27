@@ -32,6 +32,7 @@ MODULE_VERSION("0.01");
 
 #define BUFFER_SIZE 128
 #define PROC_NAME "jiffies"
+long init_jiffies = 0;
 
 ssize_t proc_read(struct file *file, char __user *usr_buf, size_t count, loff_t *pos) {
     int rv = 0;
@@ -42,7 +43,8 @@ ssize_t proc_read(struct file *file, char __user *usr_buf, size_t count, loff_t 
         return 0;
     }
     completed = 1;
-    rv = sprintf(buffer, "%lu\n", jiffies);
+    init_jiffies = jiffies;
+    rv = sprintf(buffer, "%lu\n", init_jiffies);
     copy_to_user(usr_buf, buffer, rv);
     return rv;
 }
@@ -59,6 +61,7 @@ static int __init proc_init(void) {
 }
 static void __exit proc_exit(void) {
     remove_proc_entry(PROC_NAME, NULL);
+    printk(KERN_INFO "[INFO] Total jiffies taken is: %lu\n", (jiffies - init_jiffies));
 }
 
 module_init(proc_init);
